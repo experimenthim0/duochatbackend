@@ -61,9 +61,9 @@ io.on("connection", (socket) => {
    
    sendNotificationEmail();
 socket.emit('userCountmsg', userCount);
-   if (userCount > 2) {
+   if (userCount > 3) {
     console.log('Connection rejected: Room is full');
-    socket.emit('errorMsg', 'The chat is full (Max 2 users). Please try again later. Email Me: contact.nikhim@gmail.com');
+    socket.emit('errorMsg', 'The chat is full. Please try again later. Email Me: contact.nikhim@gmail.com');
     socket.disconnect(true);
     return; // Stop the rest of the code from running for this user
   }
