@@ -13,6 +13,7 @@
   "dependencies": {
     "express": "^5.2.1",
     "socket.io": "^4.8.1",
-    "websocket": "^1.0.35"
+    "websocket": "^1.0.35",
+    "dotenv": "^17.2.3"
   }
 }
