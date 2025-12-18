@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const { configDotenv } = require('dotenv');
 require("dotenv").config();
 const { Server } = require("socket.io");
 const nodemailer = require('nodemailer');
@@ -55,7 +56,7 @@ function sendNotificationEmail() {
 
 // Socket logic
 io.on("connection", (socket) => {
-  console.log('A user connected: ' + socket.id);
+  
    const userCount = io.engine.clientsCount;
    console.log(`Current users: ${userCount}`);
    
@@ -76,9 +77,7 @@ socket.emit('userCountmsg', userCount);
     io.emit("imageMessage", data);
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
+
 });
 
 // Start server
