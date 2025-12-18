@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 require("dotenv").config();
 const { Server } = require("socket.io");
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,9 +26,47 @@ const io = new Server(server, {
   }
 });
 
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER, // Your email
+    pass: process.env.EMAIL_PASS  // Your App Password (not your normal password)
+  }
+});
+
+function sendNotificationEmail() {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_USER, // Sending the email to yourself
+    subject: 'New User Connected to Duo Chat',
+    text: ` Hi Nikhil! A new user just joined your chat at ${new Date().toLocaleString()}`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("Email Error: ", error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+}
+
+
 // Socket logic
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log('A user connected: ' + socket.id);
+   const userCount = io.engine.clientsCount;
+   console.log(`Current users: ${userCount}`);
+   
+   sendNotificationEmail();
+socket.emit('userCountmsg', userCount);
+   if (userCount > 2) {
+    console.log('Connection rejected: Room is full');
+    socket.emit('errorMsg', 'The chat is full (Max 2 users). Please try again later. Email Me: contact.nikhim@gmail.com');
+    socket.disconnect(true);
+    return; // Stop the rest of the code from running for this user
+  }
 
   socket.on("chatMessage", (msg) => {
     io.emit("chatMessage", msg);
