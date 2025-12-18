@@ -4,7 +4,7 @@ const { Resend } = require('resend');
 const { configDotenv } = require('dotenv');
 require("dotenv").config();
 const { Server } = require("socket.io");
-const nodemailer = require('nodemailer');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
