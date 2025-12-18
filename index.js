@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const { Resend } = require('resend');
 const { configDotenv } = require('dotenv');
 require("dotenv").config();
 const { Server } = require("socket.io");
@@ -28,35 +29,27 @@ const io = new Server(server, {
 });
 
 
-const transporter = nodemailer.createTransport({
-  host:"smtp.gmail.com",
-  port:465,
-  secure:true,
-  // service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER, // Your email
-    pass: process.env.EMAIL_PASS  // Your App Password (not your normal password)
-  },
-  tls: {
-    rejectUnauthorized: false // Helps bypass some server restrictions
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-function sendNotificationEmail() {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER, // Sending the email to yourself
-    subject: 'New User Connected to Duo Chat',
-    text: ` Hi Nikhil! A new user just joined your chat at ${new Date().toLocaleString()}`
-  };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+
+async function sendNotificationEmail() {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'DuoChat <onboarding@resend.dev>',
+      to: [process.env.EMAIL_USER], // The email you used to sign up for Resend
+      subject: 'New User Connected!',
+      html: `<strong>Alert:</strong> A new user joined your Duo Chat at ${new Date().toLocaleString()}`
+    });
+
     if (error) {
-      console.log("Email Error: ", error);
-    } else {
-      console.log('Email sent: ' + info.response);
+      return console.error("Resend Error:", error);
     }
-  });
+
+    console.log("Email sent successfully via Resend:", data.id);
+  } catch (err) {
+    console.error("System Error:", err);
+  }
 }
 
 
